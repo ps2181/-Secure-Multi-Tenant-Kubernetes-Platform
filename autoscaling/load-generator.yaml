@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: load-test-script
+  namespace: tenant-a
+data:
+  load-test.sh: |
+    #!/bin/sh
+    echo "Starting load test..."
+    while true; do
+      for i in $(seq 1 100); do
+        curl -s http://webapp-a-service.tenant-a.svc.cluster.local > /dev/null &
+      done
+      sleep 1
+    done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: tenant-a
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+      - name: load-generator
+        image: curlimages/curl:latest
+        command: ["/bin/sh"]
+        args: ["/scripts/load-test.sh"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+        volumeMounts:
+        - name: script
+          mountPath: /scripts
+      volumes:
+      - name: script
+        configMap:
+          name: load-test-script
+          defaultMode: 0755

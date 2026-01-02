@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: webapp-a-monitor
+  namespace: tenant-a
+  labels:
+    tenant: tenant-a
+spec:
+  selector:
+    matchLabels:
+      app: webapp-a
+  endpoints:
+  - port: http
+    interval: 30s
+    path: /metrics

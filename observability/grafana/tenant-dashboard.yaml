@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tenant-dashboard
+  namespace: observability
+  labels:
+    grafana_dashboard: "1"
+data:
+  multi-tenant-metrics.json: |
+    {
+      "dashboard": {
+        "title": "Multi-Tenant Platform Metrics",
+        "tags": ["kubernetes", "multi-tenant"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "CPU Usage by Tenant",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+            "targets": [
+              {
+                "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"tenant-.*\"}[5m])) by (namespace)",
+                "legendFormat": "{{namespace}}"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Memory Usage by Tenant",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+            "targets": [
+              {
+                "expr": "sum(container_memory_working_set_bytes{namespace=~\"tenant-.*\"}) by (namespace)",
+                "legendFormat": "{{namespace}}"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "Pod Count by Tenant",
+            "type": "stat",
+            "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
+            "targets": [
+              {
+                "expr": "count(kube_pod_info{namespace=~\"tenant-.*\"}) by (namespace)"
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "title": "Request Rate by Tenant",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12},
+            "targets": [
+              {
+                "expr": "sum(rate(nginx_ingress_controller_requests{namespace=~\"tenant-.*\"}[5m])) by (namespace)",
+                "legendFormat": "{{namespace}}"
+              }
+            ]
+          }
+        ],
+        "refresh": "30s",
+        "time": {"from": "now-1h", "to": "now"}
+      }
+    }

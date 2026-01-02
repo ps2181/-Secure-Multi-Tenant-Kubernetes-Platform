@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: tenant-project
+  namespace: argocd
+spec:
+  description: Multi-tenant platform project
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: tenant-a
+    server: https://kubernetes.default.svc
+  - namespace: tenant-b
+    server: https://kubernetes.default.svc
+  - namespace: observability
+    server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
